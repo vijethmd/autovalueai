@@ -1,0 +1,50 @@
+{
+    "linear": {
+        "mae": 0.0307,
+        "mse": 0.0014,
+        "rmse": 0.0378,
+        "r2_score": 1.0
+    },
+    "ridge": {
+        "mae": 0.0438,
+        "mse": 0.003,
+        "rmse": 0.0545,
+        "r2_score": 0.9999
+    },
+    "lasso": {
+        "mae": 0.0398,
+        "mse": 0.0027,
+        "rmse": 0.0521,
+        "r2_score": 0.9999
+    },
+    "decision_tree": {
+        "mae": 0.6221,
+        "mse": 0.6091,
+        "rmse": 0.7804,
+        "r2_score": 0.9839
+    },
+    "random_forest": {
+        "mae": 0.5243,
+        "mse": 0.4424,
+        "rmse": 0.6652,
+        "r2_score": 0.9883
+    },
+    "gradient_boosting": {
+        "mae": 0.2855,
+        "mse": 0.1398,
+        "rmse": 0.3739,
+        "r2_score": 0.9963
+    },
+    "svr": {
+        "mae": 0.6801,
+        "mse": 2.2892,
+        "rmse": 1.513,
+        "r2_score": 0.9395
+    },
+    "xgboost": {
+        "mae": 0.3768,
+        "mse": 0.232,
+        "rmse": 0.4817,
+        "r2_score": 0.9939
+    }
+}
