@@ -9,11 +9,11 @@ app = FastAPI(title="AutoValue AI API Server", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # Include only active service domains (History removed completely)
 app.include_router(auth.router)
 app.include_router(predict.router)
