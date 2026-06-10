@@ -9,11 +9,7 @@ app = FastAPI(title="AutoValue AI API Server", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://autovalueai-f0kothc22-vijethmds-projects.vercel.app",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
