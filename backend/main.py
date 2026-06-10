@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Updated absolute imports to play nicely with your root PYTHONPATH setup
-from backend.routes import auth, predict, dashboard, analytics
+from routes import auth, predict, dashboard, analytics
 
 app = FastAPI(title="AutoValue AI API Server", version="1.0.0")
 

@@ -6,7 +6,7 @@ import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.utils.auth import get_current_user
+from utils.auth import get_current_user
 
 router = APIRouter(
     prefix="/api",
