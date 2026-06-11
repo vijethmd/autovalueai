@@ -132,7 +132,7 @@ class CarDetailsSchema(BaseModel):
     Owner: str
     FuelType: str
 
-    model: str = "random_forest"
+    model: str = "svr"
 
     model_config = {
         "protected_namespaces": ()

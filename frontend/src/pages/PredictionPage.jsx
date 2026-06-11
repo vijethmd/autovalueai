@@ -12,7 +12,7 @@ export default function PredictionPage() {
   FuelType: 'Petrol',
   Transmission: 'Manual',
   Owner: 'first',
-  model: 'random_forest'
+  model: 'svr'
 });
 
   const [result, setResult] = useState(null);

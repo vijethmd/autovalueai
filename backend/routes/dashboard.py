@@ -13,9 +13,9 @@ async def get_dashboard_metrics(
     return {
         "status": "Privacy Mode Active",
         "data_persistence": "Disabled (Zero-Log)",
-        "active_models": 8,
+        "active_models": 7,
         "best_performing_model": "SVR",
-        "best_r2_score": 0.7912,
+        "best_r2_score": 0.9184,
         "dataset_rows": 13909,
         "feature_count": 482
     }
