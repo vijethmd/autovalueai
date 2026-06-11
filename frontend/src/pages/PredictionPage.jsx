@@ -4,16 +4,16 @@ import API from '../services/api';
 
 export default function PredictionPage() {
   const [formData, setFormData] = useState({
-    Brand: '',
-    model_name: '',
-    Year: new Date().getFullYear(),
-    Age: '',
-    kmDriven: '',
-    FuelType: 'Petrol',
-    Transmission: 'Manual',
-    Owner: 'first',
-    model: 'xgboost'
-  });
+  Brand: '',
+  model_name: '',
+  Year: new Date().getFullYear(),
+  Age: '',
+  kmDriven: '',
+  FuelType: 'Petrol',
+  Transmission: 'Manual',
+  Owner: 'first',
+  model: 'random_forest'
+});
 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -259,7 +259,6 @@ export default function PredictionPage() {
               <option value="random_forest">Random Forest</option>
               <option value="gradient_boosting">Gradient Boosting</option>
               <option value="svr">SVR</option>
-              <option value="xgboost">XGBoost</option>
             </select>
           </div>
 

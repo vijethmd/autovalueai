@@ -96,13 +96,6 @@ try:
                 MODEL_DIR,
                 "svr.pkl"
             )
-        ),
-
-        "xgboost": joblib.load(
-            os.path.join(
-                MODEL_DIR,
-                "xgboost.pkl"
-            )
         )
     }
 
@@ -139,7 +132,7 @@ class CarDetailsSchema(BaseModel):
     Owner: str
     FuelType: str
 
-    model: str = "xgboost"
+    model: str = "random_forest"
 
     model_config = {
         "protected_namespaces": ()
