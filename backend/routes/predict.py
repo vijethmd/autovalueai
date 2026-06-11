@@ -102,7 +102,12 @@ try:
 
 except Exception as e:
 
-    print("MODEL LOADING ERROR:", str(e))
+    import traceback
+
+    print("=" * 60)
+    print("MODEL LOADING ERROR")
+    traceback.print_exc()
+    print("=" * 60)
 
     scaler = None
     feature_columns = None
