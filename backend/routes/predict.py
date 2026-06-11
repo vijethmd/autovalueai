@@ -20,6 +20,15 @@ MODEL_DIR = os.path.join(
     "trained_models"
 )
 
+for file in os.listdir(MODEL_DIR):
+    if file.endswith(".pkl"):
+        try:
+            joblib.load(os.path.join(MODEL_DIR, file))
+            print(f"SUCCESS: {file}")
+        except Exception as e:
+            print(f"FAILED: {file}")
+            print(e)
+
 try:
 
     scaler = joblib.load(
