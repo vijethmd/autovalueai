@@ -9,7 +9,7 @@ export default function LandingPage() {
           AutoValue AI
         </h1>
         <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-          Predict Used Car Prices Using Machine Learning. Leverage 8 parallel execution models to lock down true ecosystem valuations instantly.
+          Predict Used Car Prices Using Machine Learning. Leverage 7 parallel execution models to lock down true ecosystem valuations instantly.
         </p>
         <div className="flex justify-center gap-4 mb-20">
           <Link to="/signup" className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-lg font-medium transition">
@@ -22,7 +22,7 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-4 gap-6 text-left">
           <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
-            <h3 className="text-lg font-bold text-indigo-400 mb-2">8 ML Models</h3>
+            <h3 className="text-lg font-bold text-indigo-400 mb-2">7 ML Models</h3>
             <p className="text-sm text-slate-400">Simultaneous predictive processing from Linear Models to Deep Gradient Boosted Trees.</p>
           </div>
           <div className="bg-slate-900 p-6 rounded-xl border border-slate-800">
