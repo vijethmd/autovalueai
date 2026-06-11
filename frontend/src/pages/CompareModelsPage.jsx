@@ -1,16 +1,17 @@
+
 import React, { useState } from 'react';
 import API from '../services/api';
 
 export default function CompareModelsPage() {
   const [formData, setFormData] = useState({
-    Car_Name: '',
-    Year: 2020,
-    Present_Price: '',
-    Kms_Driven: '',
-    Fuel_Type: 'Petrol',
-    Seller_Type: 'Dealer',
+    Brand: '',
+    model_name: '',
+    Year: new Date().getFullYear(),
+    Age: '',
+    kmDriven: '',
+    FuelType: 'Petrol',
     Transmission: 'Manual',
-    Owner: 0
+    Owner: 'first'
   });
 
   const [matrix, setMatrix] = useState(null);
@@ -28,19 +29,22 @@ export default function CompareModelsPage() {
       const payload = {
         ...formData,
         Year: parseInt(formData.Year),
-        Present_Price: parseFloat(formData.Present_Price),
-        Kms_Driven: parseInt(formData.Kms_Driven),
-        Owner: parseInt(formData.Owner)
+        Age: parseInt(formData.Age),
+        kmDriven: parseInt(formData.kmDriven)
       };
 
-      const res = await API.post('/compare-models', payload);
+      const res = await API.post(
+        '/compare-models',
+        payload
+      );
 
       setMatrix(res.data);
     } catch (err) {
       console.error(err);
+
       setError(
         err.response?.data?.detail ||
-        'Unable to generate comparison matrix.'
+          'Unable to generate comparison matrix.'
       );
     } finally {
       setLoading(false);
@@ -50,29 +54,28 @@ export default function CompareModelsPage() {
   const getBestModel = () => {
     if (!matrix) return null;
 
-    return Object.entries(matrix).reduce((best, current) =>
-      current[1] > best[1] ? current : best
+    return Object.entries(matrix).reduce(
+      (best, current) =>
+        current[1] > best[1]
+          ? current
+          : best
     );
   };
 
   const bestModel = getBestModel();
 
-  const formatPrediction = (prediction) => {
-  const rupees = Number(prediction) * 100000;
-
-  if (rupees < 50000) {
-    return "Negligible Value";
-  }
-
-  return `₹ ${Number(prediction).toFixed(2)} Lakhs (₹ ${rupees.toLocaleString(
-    "en-IN"
-  )})`;
+  const formatPrediction = (
+    prediction
+  ) => {
+    return `₹ ${Number(
+      prediction
+    ).toLocaleString('en-IN')}`;
   };
-  
+
   return (
     <div className="bg-slate-950 text-white min-h-screen p-8 max-w-6xl mx-auto">
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl">
-        
+
         <h2 className="text-3xl font-bold text-indigo-400 mb-2">
           ML Model Comparison Dashboard
         </h2>
@@ -91,31 +94,53 @@ export default function CompareModelsPage() {
           onSubmit={handleCompare}
           className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8"
         >
-          {/* Car Name */}
+
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Car Name
+              Brand
             </label>
+
             <input
               type="text"
               required
-              value={formData.Car_Name}
+              value={formData.Brand}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Car_Name: e.target.value
+                  Brand: e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
-              placeholder="e.g. Swift"
+              placeholder="e.g. Hyundai"
             />
           </div>
 
-          {/* Year */}
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
+              Model Name
+            </label>
+
+            <input
+              type="text"
+              required
+              value={formData.model_name}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  model_name:
+                    e.target.value
+                })
+              }
+              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
+              placeholder="e.g. i20"
+            />
+          </div>
+
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Manufacturing Year
             </label>
+
             <input
               type="number"
               required
@@ -130,124 +155,137 @@ export default function CompareModelsPage() {
             />
           </div>
 
-          {/* Present Price */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Present Price (Lakhs ₹)
+              Age (Years)
             </label>
+
             <input
               type="number"
-              step="0.01"
               required
-              value={formData.Present_Price}
+              min="0"
+              value={formData.Age}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Present_Price: e.target.value
+                  Age: e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             />
           </div>
 
-          {/* Kms Driven */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Kilometers Driven
             </label>
+
             <input
               type="number"
               required
-              value={formData.Kms_Driven}
+              value={
+                formData.kmDriven
+              }
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Kms_Driven: e.target.value
+                  kmDriven:
+                    e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
+              placeholder="e.g. 45000"
             />
           </div>
 
-          {/* Fuel Type */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Fuel Type
             </label>
+
             <select
-              value={formData.Fuel_Type}
+              value={
+                formData.FuelType
+              }
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Fuel_Type: e.target.value
+                  FuelType:
+                    e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             >
-              <option value="Petrol">Petrol</option>
-              <option value="Diesel">Diesel</option>
-              <option value="CNG">CNG</option>
+              <option value="Petrol">
+                Petrol
+              </option>
+
+              <option value="Diesel">
+                Diesel
+              </option>
+
+              <option value="Hybrid/CNG">
+                Hybrid/CNG
+              </option>
+
+              <option value="hybrid">
+                Hybrid
+              </option>
             </select>
           </div>
 
-          {/* Seller Type */}
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Seller Type
-            </label>
-            <select
-              value={formData.Seller_Type}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  Seller_Type: e.target.value
-                })
-              }
-              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
-            >
-              <option value="Dealer">Dealer</option>
-              <option value="Individual">Individual</option>
-            </select>
-          </div>
-
-          {/* Transmission */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Transmission
             </label>
+
             <select
-              value={formData.Transmission}
+              value={
+                formData.Transmission
+              }
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Transmission: e.target.value
+                  Transmission:
+                    e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             >
-              <option value="Manual">Manual</option>
-              <option value="Automatic">Automatic</option>
+              <option value="Manual">
+                Manual
+              </option>
+
+              <option value="Automatic">
+                Automatic
+              </option>
             </select>
           </div>
 
-          {/* Owner */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Previous Owners
+              Owner
             </label>
-            <input
-              type="number"
-              min="0"
-              required
+
+            <select
               value={formData.Owner}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Owner: e.target.value
+                  Owner:
+                    e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
-            />
+            >
+              <option value="first">
+                First Owner
+              </option>
+
+              <option value="second">
+                Second Owner
+              </option>
+            </select>
           </div>
 
           <button
@@ -262,76 +300,103 @@ export default function CompareModelsPage() {
         </form>
 
         {matrix && (
-  <>
-    {bestModel && (
-      <div className="mb-6 p-4 rounded-lg border border-emerald-700 bg-emerald-950/20">
-        <h3 className="text-emerald-400 font-bold text-lg">
-          Best Prediction
-        </h3>
+          <>
+            {bestModel && (
+              <div className="mb-6 p-4 rounded-lg border border-emerald-700 bg-emerald-950/20">
 
-        <p className="text-sm text-slate-300 mt-1">
-          Model:{" "}
-          <span className="font-bold capitalize">
-            {bestModel[0].replace(/_/g, " ")}
-          </span>
-        </p>
+                <h3 className="text-emerald-400 font-bold text-lg">
+                  Highest Predicted Value
+                </h3>
 
-        <p className="text-2xl font-black text-emerald-400 mt-2">
-          {formatPrediction(bestModel[1])}
-        </p>
-      </div>
-    )}
+                <p className="text-sm text-slate-300 mt-1">
+                  Model:{' '}
+                  <span className="font-bold capitalize">
+                    {bestModel[0].replace(
+                      /_/g,
+                      ' '
+                    )}
+                  </span>
+                </p>
 
-    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-slate-800 bg-slate-900">
-            <th className="p-4 text-left text-slate-400 uppercase text-xs">
-              Model
-            </th>
+                <p className="text-2xl font-black text-emerald-400 mt-2">
+                  {formatPrediction(
+                    bestModel[1]
+                  )}
+                </p>
 
-            <th className="p-4 text-right text-slate-400 uppercase text-xs">
-              Predicted Price (₹ Lakhs)
-            </th>
-          </tr>
-        </thead>
+              </div>
+            )}
 
-        <tbody>
-          {Object.entries(matrix)
-            .sort((a, b) => b[1] - a[1])
-            .map(([model, prediction]) => (
-              <tr
-                key={model}
-                className={`border-b border-slate-800 ${
-                  bestModel && model === bestModel[0]
-                    ? "bg-emerald-950/20"
-                    : ""
-                }`}
-              >
-                <td className="p-4 capitalize">
-                  {model.replace(/_/g, " ")}
-                </td>
+            <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
 
-                <td className="p-4 text-right font-semibold">
-                  {formatPrediction(prediction)}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
+              <table className="w-full">
 
-    <div className="mt-4 text-sm text-slate-400">
-      <p>
-        * Predictions below ₹50,000 are classified as{" "}
-        <span className="text-orange-400 font-semibold">
-          Negligible Value
-        </span>
-      </p>
-    </div>
-  </>
-)}
+                <thead>
+                  <tr className="border-b border-slate-800 bg-slate-900">
+
+                    <th className="p-4 text-left text-slate-400 uppercase text-xs">
+                      Model
+                    </th>
+
+                    <th className="p-4 text-right text-slate-400 uppercase text-xs">
+                      Predicted Price (₹)
+                    </th>
+
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {Object.entries(
+                    matrix
+                  )
+                    .sort(
+                      (a, b) =>
+                        b[1] - a[1]
+                    )
+                    .map(
+                      ([
+                        model,
+                        prediction
+                      ]) => (
+                        <tr
+                          key={model}
+                          className={`border-b border-slate-800 ${
+                            bestModel &&
+                            model ===
+                              bestModel[0]
+                              ? 'bg-emerald-950/20'
+                              : ''
+                          }`}
+                        >
+
+                          <td className="p-4 capitalize">
+                            {model.replace(
+                              /_/g,
+                              ' '
+                            )}
+                          </td>
+
+                          <td className="p-4 text-right font-semibold">
+                            {formatPrediction(
+                              prediction
+                            )}
+                          </td>
+
+                        </tr>
+                      )
+                    )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   );
 }
+

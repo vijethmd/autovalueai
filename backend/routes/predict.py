@@ -1,6 +1,7 @@
 
 import os
 import joblib
+import numpy as np
 import pandas as pd
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,11 +20,8 @@ MODEL_DIR = os.path.join(
     "trained_models"
 )
 
-# ==========================
-# LOAD ARTIFACTS
-# ==========================
-
 try:
+
     scaler = joblib.load(
         os.path.join(MODEL_DIR, "scaler.pkl")
     )
@@ -32,30 +30,70 @@ try:
         os.path.join(MODEL_DIR, "feature_columns.pkl")
     )
 
+    brand_freq = joblib.load(
+        os.path.join(MODEL_DIR, "brand_freq.pkl")
+    )
+
+    model_freq = joblib.load(
+        os.path.join(MODEL_DIR, "model_freq.pkl")
+    )
+
     models = {
+
         "linear_regression": joblib.load(
-            os.path.join(MODEL_DIR, "linear.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "linear_regression.pkl"
+            )
         ),
+
         "ridge_regression": joblib.load(
-            os.path.join(MODEL_DIR, "ridge.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "ridge_regression.pkl"
+            )
         ),
+
         "lasso_regression": joblib.load(
-            os.path.join(MODEL_DIR, "lasso.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "lasso_regression.pkl"
+            )
         ),
+
         "decision_tree": joblib.load(
-            os.path.join(MODEL_DIR, "decision_tree.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "decision_tree.pkl"
+            )
         ),
+
         "random_forest": joblib.load(
-            os.path.join(MODEL_DIR, "random_forest.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "random_forest.pkl"
+            )
         ),
+
         "gradient_boosting": joblib.load(
-            os.path.join(MODEL_DIR, "gradient_boosting.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "gradient_boosting.pkl"
+            )
         ),
+
         "svr": joblib.load(
-            os.path.join(MODEL_DIR, "svr.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "svr.pkl"
+            )
         ),
+
         "xgboost": joblib.load(
-            os.path.join(MODEL_DIR, "xgboost.pkl")
+            os.path.join(
+                MODEL_DIR,
+                "xgboost.pkl"
+            )
         )
     }
 
@@ -63,26 +101,30 @@ try:
     print("Available models:", list(models.keys()))
 
 except Exception as e:
+
     print("MODEL LOADING ERROR:", str(e))
 
     scaler = None
     feature_columns = None
+    brand_freq = {}
+    model_freq = {}
     models = {}
 
 
-# ==========================
-# REQUEST SCHEMA
-# ==========================
-
 class CarDetailsSchema(BaseModel):
-    Car_Name: str
+
+    Brand: str
+    model_name: str
+
     Year: int
-    Present_Price: float
-    Kms_Driven: int
-    Fuel_Type: str
-    Seller_Type: str
+    Age: int
+
+    kmDriven: int
+
     Transmission: str
-    Owner: int
+    Owner: str
+    FuelType: str
+
     model: str = "xgboost"
 
     model_config = {
@@ -90,28 +132,64 @@ class CarDetailsSchema(BaseModel):
     }
 
 
-# ==========================
-# FEATURE PIPELINE
-# ==========================
-
 def prepare_features(details: CarDetailsSchema):
 
+    owner_value = 0
+
+    if details.Owner.lower() == "second":
+        owner_value = 1
+
+    brand_freq_value = brand_freq.get(
+        details.Brand,
+        0
+    )
+
+    model_freq_value = model_freq.get(
+        details.model_name,
+        0
+    )
+
     df = pd.DataFrame([{
+
         "Year": details.Year,
-        "Present_Price": details.Present_Price,
-        "Kms_Driven": details.Kms_Driven,
-        "Owner": details.Owner,
-        "Fuel_Type": details.Fuel_Type,
-        "Seller_Type": details.Seller_Type,
-        "Transmission": details.Transmission
+
+        "Age": details.Age,
+
+        "kmDriven": details.kmDriven,
+
+        "Owner": owner_value,
+
+        "BrandFreq": brand_freq_value,
+
+        "ModelFreq": model_freq_value,
+
+        "AgeSquared":
+            details.Age ** 2,
+
+        "MileagePerYear":
+            details.kmDriven /
+            (details.Age + 1),
+
+        "Brand":
+            details.Brand,
+
+        "model":
+            details.model_name,
+
+        "Transmission":
+            details.Transmission,
+
+        "FuelType":
+            details.FuelType
     }])
 
     df = pd.get_dummies(
         df,
         columns=[
-            "Fuel_Type",
-            "Seller_Type",
-            "Transmission"
+            "Brand",
+            "model",
+            "Transmission",
+            "FuelType"
         ],
         drop_first=True
     )
@@ -123,10 +201,6 @@ def prepare_features(details: CarDetailsSchema):
 
     return df
 
-
-# ==========================
-# INFERENCE
-# ==========================
 
 def pipeline_inference(
     details: CarDetailsSchema,
@@ -143,28 +217,43 @@ def pipeline_inference(
     ]
 
     if model_key in scaled_models:
-        prediction = models[model_key].predict(
-            scaler.transform(features)
-        )[0]
+
+        prediction_log = (
+            models[model_key]
+            .predict(
+                scaler.transform(features)
+            )[0]
+        )
+
     else:
-        prediction = models[model_key].predict(
-            features.values
-        )[0]
 
-    return round(float(prediction), 2)
+        prediction_log = (
+            models[model_key]
+            .predict(
+                features
+            )[0]
+        )
 
+    prediction = np.expm1(
+        prediction_log
+    )
 
-# ==========================
-# PREDICT
-# ==========================
+    return round(
+        float(prediction),
+        2
+    )
+
 
 @router.post("/predict")
 async def predict_car_price(
     payload: CarDetailsSchema,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(
+        get_current_user
+    )
 ):
 
     if payload.model not in models:
+
         raise HTTPException(
             status_code=400,
             detail=f"Model '{payload.model}' not found"
@@ -180,14 +269,12 @@ async def predict_car_price(
     }
 
 
-# ==========================
-# COMPARE MODELS
-# ==========================
-
 @router.post("/compare-models")
 async def compare_models(
     payload: CarDetailsSchema,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(
+        get_current_user
+    )
 ):
 
     results = {}
@@ -195,13 +282,25 @@ async def compare_models(
     for model_name in models.keys():
 
         try:
-            results[model_name] = pipeline_inference(
+
+            results[
+                model_name
+            ] = pipeline_inference(
                 payload,
                 model_name
             )
 
         except Exception as e:
-            print(model_name, "failed:", str(e))
-            results[model_name] = 0
+
+            print(
+                model_name,
+                "failed:",
+                str(e)
+            )
+
+            results[
+                model_name
+            ] = 0
 
     return results
+

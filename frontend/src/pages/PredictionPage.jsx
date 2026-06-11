@@ -1,16 +1,17 @@
+
 import React, { useState } from 'react';
 import API from '../services/api';
 
 export default function PredictionPage() {
   const [formData, setFormData] = useState({
-    Car_Name: '',
-    Year: 2020,
-    Present_Price: '',
-    Kms_Driven: '',
-    Fuel_Type: 'Petrol',
-    Seller_Type: 'Dealer',
+    Brand: '',
+    model_name: '',
+    Year: new Date().getFullYear(),
+    Age: '',
+    kmDriven: '',
+    FuelType: 'Petrol',
     Transmission: 'Manual',
-    Owner: 0,
+    Owner: 'first',
     model: 'xgboost'
   });
 
@@ -25,19 +26,20 @@ export default function PredictionPage() {
     setError(null);
     setResult(null);
 
-    const payload = {
-      ...formData,
-      Year: parseInt(formData.Year),
-      Present_Price: parseFloat(formData.Present_Price),
-      Kms_Driven: parseInt(formData.Kms_Driven),
-      Owner: parseInt(formData.Owner)
-    };
-
     try {
+      const payload = {
+        ...formData,
+        Year: parseInt(formData.Year),
+        Age: parseInt(formData.Age),
+        kmDriven: parseInt(formData.kmDriven)
+      };
+
       const res = await API.post('/predict', payload);
+
       setResult(res.data.predicted_price);
     } catch (err) {
       console.error(err);
+
       setError(
         err.response?.data?.detail ||
         'Prediction failed. Please check your inputs.'
@@ -47,21 +49,14 @@ export default function PredictionPage() {
     }
   };
 
-
   const formatPrediction = (prediction) => {
-  const rupees = Number(prediction) * 100000;
-
-  if (rupees < 50000) {
-    return "Negligible Value";
-  }
-
-  return `₹ ${Number(prediction).toFixed(2)} Lakhs`;
-};
+    return `₹ ${Number(prediction).toLocaleString("en-IN")}`;
+  };
 
   return (
     <div className="bg-slate-950 text-white min-h-screen p-8 max-w-5xl mx-auto">
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl">
-        
+
         <h2 className="text-3xl font-bold text-indigo-400 mb-2">
           Used Car Price Prediction
         </h2>
@@ -80,73 +75,99 @@ export default function PredictionPage() {
           onSubmit={handlePredict}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {/* Car Name */}
+
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Car Name
+              Brand
             </label>
+
             <input
               type="text"
               required
-              value={formData.Car_Name}
+              value={formData.Brand}
               onChange={(e) =>
-                setFormData({ ...formData, Car_Name: e.target.value })
+                setFormData({
+                  ...formData,
+                  Brand: e.target.value
+                })
               }
-              placeholder="e.g. Swift, City, Innova"
+              placeholder="e.g. Hyundai"
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             />
           </div>
 
-          {/* Year */}
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
+              Model Name
+            </label>
+
+            <input
+              type="text"
+              required
+              value={formData.model_name}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  model_name: e.target.value
+                })
+              }
+              placeholder="e.g. i20"
+              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
+            />
+          </div>
+
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Manufacturing Year
             </label>
+
             <input
               type="number"
               required
               value={formData.Year}
               onChange={(e) =>
-                setFormData({ ...formData, Year: e.target.value })
+                setFormData({
+                  ...formData,
+                  Year: e.target.value
+                })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             />
           </div>
 
-          {/* Present Price */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Present Price (Lakhs ₹)
+              Age (Years)
             </label>
+
             <input
               type="number"
-              step="0.01"
               required
-              value={formData.Present_Price}
+              min="0"
+              value={formData.Age}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Present_Price: e.target.value
+                  Age: e.target.value
                 })
               }
-              placeholder="e.g. 8.50"
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             />
           </div>
 
-          {/* Kms Driven */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Kilometers Driven
             </label>
+
             <input
               type="number"
               required
-              value={formData.Kms_Driven}
+              value={formData.kmDriven}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Kms_Driven: e.target.value
+                  kmDriven: e.target.value
                 })
               }
               placeholder="e.g. 45000"
@@ -154,52 +175,33 @@ export default function PredictionPage() {
             />
           </div>
 
-          {/* Fuel Type */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Fuel Type
             </label>
+
             <select
-              value={formData.Fuel_Type}
+              value={formData.FuelType}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  Fuel_Type: e.target.value
+                  FuelType: e.target.value
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
             >
               <option value="Petrol">Petrol</option>
               <option value="Diesel">Diesel</option>
-              <option value="CNG">CNG</option>
+              <option value="Hybrid/CNG">Hybrid/CNG</option>
+              <option value="hybrid">Hybrid</option>
             </select>
           </div>
 
-          {/* Seller Type */}
-          <div>
-            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Seller Type
-            </label>
-            <select
-              value={formData.Seller_Type}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  Seller_Type: e.target.value
-                })
-              }
-              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
-            >
-              <option value="Dealer">Dealer</option>
-              <option value="Individual">Individual</option>
-            </select>
-          </div>
-
-          {/* Transmission */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               Transmission
             </label>
+
             <select
               value={formData.Transmission}
               onChange={(e) =>
@@ -215,15 +217,12 @@ export default function PredictionPage() {
             </select>
           </div>
 
-          {/* Owner */}
           <div>
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
-              Number of Previous Owners
+              Owner
             </label>
-            <input
-              type="number"
-              required
-              min="0"
+
+            <select
               value={formData.Owner}
               onChange={(e) =>
                 setFormData({
@@ -232,14 +231,17 @@ export default function PredictionPage() {
                 })
               }
               className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-sm"
-            />
+            >
+              <option value="first">First Owner</option>
+              <option value="second">Second Owner</option>
+            </select>
           </div>
 
-          {/* Model Selection */}
           <div className="md:col-span-2">
             <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">
               ML Model
             </label>
+
             <select
               value={formData.model}
               onChange={(e) =>
@@ -271,23 +273,25 @@ export default function PredictionPage() {
         </form>
 
         {result !== null && (
-  <div className="mt-8 border-t border-slate-800 pt-8 text-center">
-    <h3 className="text-xs uppercase tracking-widest text-slate-400 mb-2">
-      Predicted Selling Price (₹ Lakhs)
-    </h3>
+          <div className="mt-8 border-t border-slate-800 pt-8 text-center">
 
-    <div className="text-5xl font-black text-emerald-400">
-      {formatPrediction(result)}
-    </div>
+            <h3 className="text-xs uppercase tracking-widest text-slate-400 mb-2">
+              Predicted Selling Price
+            </h3>
 
-    {Number(result) * 100000 >= 50000 && (
-      <div className="mt-3 text-slate-400 text-lg">
-        ₹ {(Number(result) * 100000).toLocaleString("en-IN")}
-      </div>
-    )}
-  </div>
-)}
+            <div className="text-5xl font-black text-emerald-400">
+              {formatPrediction(result)}
+            </div>
+
+            <div className="mt-3 text-slate-400 text-lg">
+              ₹ {Number(result).toLocaleString("en-IN")}
+            </div>
+
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
+
